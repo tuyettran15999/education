@@ -44,6 +44,21 @@ The raw datasets used in the project are located in the `data/raw/` folder.
 
 ---
 
+## Data Preparation
+
+- Selecting variables relevant to the research questions.
+- Renaming columns to improve readability and consistency.
+- Standardizing the school ID data types across the datasets to ensure accurate matching.
+- Grouping the NCES locale codes into four geographic categories: City, Suburban, Town, and Rural.
+- Joining the EdGap, school information, and school geography datasets using left joins to retain all observations from the EdGap dataset.
+- Checking data quality, including missing values and the validity of school and socioeconomic variables.
+- Restricting the analysis to high schools.
+- Handling missing values and preparing the variables for analysis.
+
+The Jupyter notebook used to clean and prepare the data is: `code/Education.ipynb`
+The cleaned data file is: `data/processed/clean_education.csv`
+
+---
 ## Analysis
 
 The data analysis used the data science methodology. Here are main steps included:
