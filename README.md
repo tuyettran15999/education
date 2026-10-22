@@ -79,7 +79,7 @@ Notebook: [modeling.ipynb](code/modeling.ipynb)
 
 ---
 
-## Key Findings
+## Results
 
 - School average ACT scores have a mean of **20.30** and a median of **20.50**. The middle 50% lie between **18.80 and 22.00**.
 - Lunch eligibility has the strongest absolute Pearson correlation with ACT among the socioeconomic predictors (**r ≈ −0.78**).
@@ -113,6 +113,8 @@ Predicted average ACT = 22.6400
 Adding household income and married-couple family proportion does not significantly improve fit in the nested-model comparison (p ≈ 0.807). Adding locale gives a statistically significant but small improvement: the reduced model's MAE decreases from 1.1455 to 1.1443. Locale is omitted from the selected model to favor simplicity.
 
 Lunch eligibility has the largest absolute coefficient among the standardized predictors in the selected model. Standardization changes coefficient units without changing fitted values or model fit.
+
+The document communicating the results of this project is: `reports/Education_Project_Report.pdf`
 
 ---
 
