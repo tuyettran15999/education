@@ -9,7 +9,8 @@ seaborn
 
 # Statistical Analysis
 scipy
-statsmodel
+statsmodels
+scikit-learn
 
 
 # Jupyter & Development

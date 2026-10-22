@@ -1,84 +1,132 @@
 # Education Project
 
-> This project addresses inequality of educational opportunity in U.S. high schools. We will see whether school performance is associated with socioeconomic factors and school locale.
+Exploring socioeconomic and geographic differences in U.S. high school performance and building regression models to predict school average ACT scores.
 
 ---
 
 ## Project Overview
 
-This project investigates factors associated with academic performance among U.S. high schools, using average ACT scores as a measure of school performance. The analysis examines socioeconomic characteristics such as unemployment rate, educational attainment, family structure, median household income, and eligibility for free or reduced-price lunch.
+This project combines EdGap data with NCES school information and geographic classifications. It examines how school average ACT scores vary with socioeconomic characteristics and school locale, then compares regression models for predicting ACT scores.
 
-In addition, the project explores whether average ACT performance differs across school locales (City, Suburban, Town, and Rural) after accounting for socioeconomic characteristics.
+The analytical sample contains **7,227 high schools across 20 states**. School locales are grouped into **City, Suburban, Town, and Rural**.
 
-- **Objective:** Determine whether school performance is associated with socioeconomic factors and school locale.
-- **Domain:** Education Analytics
-- **Key Techniques:** Data collection, Data processing, Exploratory data analysis, Statistical hypothesis testing
-
----
+- **Prediction target:** School average ACT score (`average_act`).
+- **Socioeconomic predictors:** Unemployment rate, college proportion, married-couple family proportion, median household income, and free or reduced-price lunch eligibility.
+- **Geographic predictor:** School locale (`locale_group`).
+- **Methods:** Data preparation, exploratory data analysis, linear regression
 
 ## Project Structure
 
 ```
-├── data/                 # Raw and processed data
-├── code/                 # Jupyter notebooks and Python scripts
-├── reports/              # Generated reports and visualizations
-├── requirements.txt      # Dependencies
-└── README.md             # Project documentation
+├── code/
+│   ├── data_preparation.ipynb   # Merge, clean, and impute data
+│   ├── eda.ipynb                # Explore distributions and relationships
+│   └── modeling.ipynb           # Fit, compare, and interpret regression models
+├── data/
+│   ├── raw/                    # Raw datasets
+│   └── processed/
+│       └── clean_education.csv # Processed dataset
+├── reports/                    # Directory reserved for reports and figures
+├── requirements.txt
+├── LICENSE
+└── README.md
+```
+---
+
+## Data Sources
+
+- **[EdGap](https://www.edgap.org/):** School test scores and socioeconomic characteristics. The project uses the 2016 dataset.
+- **[NCES Common Core of Data](https://nces.ed.gov/ccd/pubschuniv.asp):** School identifiers, state, school level, and other school characteristics.
+- **[NCES EDGE School Geocodes](https://nces.ed.gov/programs/edge/geographic/schoollocation):** School geographic information and locale codes.
+- **[NCES Locale Definitions](https://nces.ed.gov/surveys/annualreports/topical-studies/locale/definitions):** Definitions used to group locale codes into City, Suburban, Town, and Rural.
+
+Source files are stored in `data/raw/`.
+
+---
+
+## Analysis Workflow
+
+### 1. Data Preparation
+
+Notebook: [data_preparation.ipynb](code/data_preparation.ipynb)
+
+- Select and rename relevant variables.
+- Standardize school identifiers and join the three datasets using left joins.
+- Map NCES locale codes to four geographic groups.
+- Check duplicates, missing values, and valid numerical ranges.
+- Retain high schools and remove observations without ACT scores.
+- Impute missing numerical socioeconomic predictors using iterative imputation.
+- Export [clean_education.csv](data/processed/clean_education.csv).
+
+### 2. Exploratory Data Analysis
+
+Notebook: [eda.ipynb](code/eda.ipynb)
+
+- Describe sample coverage across states and locales.
+- Examine ACT and socioeconomic distributions, spread, and potential outliers.
+- Explore numerical correlations and pairwise relationships.
+- Compare ACT scores and socioeconomic characteristics across locales.
+
+### 3. Regression Modeling
+
+Notebook: [modeling.ipynb](code/modeling.ipynb)
+
+- Fit a lunch-only linear model and compare it with a quadratic specification.
+- Fit a full model with five socioeconomic predictors and a reduced model with three.
+- Add school locale as a categorical predictor, using City as the reference group.
+- Compare nested models using partial F-tests and summarize R², adjusted R², RMSE, and MAE.
+- Examine residual plots and standardize the selected predictors to interpret coefficients on a common scale.
+
+---
+
+## Key Findings
+
+- School average ACT scores have a mean of **20.30** and a median of **20.50**. The middle 50% lie between **18.80 and 22.00**.
+- Lunch eligibility has the strongest absolute Pearson correlation with ACT among the socioeconomic predictors (**r ≈ −0.78**).
+- Suburban schools have the highest mean ACT score (**21.08**); city schools have the lowest (**18.91**) and the greatest variability.
+- Socioeconomic characteristics differ across locales. Suburban schools generally have higher household income and college proportions and lower lunch eligibility.
+
+---
+
+### Model Comparison
+
+| Model | R² | Adjusted R² | RMSE | MAE |
+|---|---:|---:|---:|---:|
+| Lunch only | 0.6139 | 0.6139 | 1.5585 | 1.1690 |
+| Lunch quadratic | 0.6158 | 0.6157 | 1.5548 | 1.1651 |
+| Socioeconomic full | 0.6280 | 0.6277 | 1.5299 | 1.1453 |
+| Socioeconomic reduced | 0.6279 | 0.6278 | 1.5300 | 1.1455 |
+| Full + locale | 0.6285 | 0.6281 | 1.5289 | 1.1443 |
+| Reduced + locale | 0.6285 | 0.6282 | 1.5289 | 1.1443 |
+
+RMSE and MAE are in ACT points; all values are calculated on the fitting data.
+
+The **reduced socioeconomic model** is selected for simplicity and nearly identical in-sample fit to the full model:
+
+```text
+Predicted average ACT = 22.6400
+                      − 2.1683 × rate_unemployment
+                      + 1.7139 × percent_college
+                      − 7.5863 × percent_lunch
 ```
 
----
+Adding household income and married-couple family proportion does not significantly improve fit in the nested-model comparison (p ≈ 0.807). Adding locale gives a statistically significant but small improvement: the reduced model's MAE decreases from 1.1455 to 1.1443. Locale is omitted from the selected model to favor simplicity.
 
-## Data
-### EdGap data:
-- **Source:** https://www.edgap.org/#5/37.875/-95.999 
-- **Description:** This data set from 2016 includes information about average ACT or SAT scores for schools and several socioeconomic characteristics of the school district.
-### School information data:
-- **Source:** https://nces.ed.gov/ccd/pubschuniv.asp
-- **Description:** This data set consists of basic identifying information about schools. 
-### School geogrạphy data:
-- **Source:** https://nces.ed.gov/programs/edge/geographic/schoollocation
-- **Description:** This dataset from NCES EDGE provides geographic information for U.S. public schools. The `LOCALE` variable is used to classify schools by geographic setting, including City, Suburban, Town, and Rural areas.
-- **Locale definitions:** https://nces.ed.gov/surveys/annualreports/topical-studies/locale/definitions
-
-The raw datasets used in the project are located in the `data/raw/` folder.
+Lunch eligibility has the largest absolute coefficient among the standardized predictors in the selected model. Standardization changes coefficient units without changing fitted values or model fit.
 
 ---
 
-## Data Preparation
+## Limitations
 
-- Selecting variables relevant to the research questions.
-- Renaming columns to improve readability and consistency.
-- Standardizing the school ID data types across the datasets to ensure accurate matching.
-- Grouping the NCES locale codes into four geographic categories: City, Suburban, Town, and Rural.
-- Joining the EdGap, school information, and school geography datasets using left joins to retain all observations from the EdGap dataset.
-- Checking data quality, including missing values and the validity of school and socioeconomic variables.
-- Restricting the analysis to high schools.
-- Handling missing values and preparing the variables for analysis.
-
-The Jupyter notebook used to clean and prepare the data is: `code/Education.ipynb`
-The cleaned data file is: `data/processed/clean_education.csv`
-
----
-## Analysis
-
-The data analysis used the data science methodology. Here are main steps included:
-
-- 
-
-The Jupyter notebook used to clean and analyze the data is: `code/Education.ipynb`
-The cleaned data file is: `data/processed/clean_education.csv`
+- Performance on unseen schools has not been evaluated; in-sample metrics should not be interpreted as validated predictive accuracy.
+- The sample covers 20 states with unequal geographic representation and is not established as representative of all U.S. high schools.
+- Socioeconomic predictors were imputed before modeling. Regression results do not account for imputation uncertainty.
+- Large residuals remain for some schools, and relevant predictors may be unmeasured.
+- Results describe school-level observational associations, not causal effects or individual student relationships.
 
 ---
 
-## Results
-
-The results show that
-
-The document communicating the results of this project is: `reports/`
-
----
-
-## Authors
+## Author
 
 - [Krystal Tran](https://github.com/tuyettran15999)
 
@@ -86,7 +134,7 @@ The document communicating the results of this project is: `reports/`
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
 
 ---
 
